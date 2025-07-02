@@ -250,7 +250,10 @@ export default function Index() {
         </Card>
 
         {/* Footer */}
-        <footer className="mt-6 flex justify-end">
+        <footer className="mt-6 flex justify-between items-center">
+          <span className="text-sm text-muted-foreground">
+            Last updated: {lastUpdated.toLocaleTimeString()}
+          </span>
           <span className="text-sm text-muted-foreground">
             Data are updated every 12 hours
           </span>
