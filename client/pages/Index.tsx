@@ -93,31 +93,6 @@ export default function Index() {
     navigate(`/participant/${participant.id}`);
   };
 
-  const SortableHeader = ({
-    field,
-    children,
-    className = "",
-  }: {
-    field: keyof Participant;
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <th
-      className={`p-3 text-left text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors ${className}`}
-      onClick={() => handleSort(field)}
-    >
-      <div className="flex items-center gap-1">
-        {children}
-        {sortField === field &&
-          (sortDirection === "asc" ? (
-            <ChevronUp className="w-4 h-4" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          ))}
-      </div>
-    </th>
-  );
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
