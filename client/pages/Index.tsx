@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Search, RefreshCw, Activity } from "lucide-react";
+import { Search, Activity } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { TimeFilterSelector } from "@/components/tracker/time-filter";
 import { ParticipantRow } from "@/components/tracker/participant-row";
@@ -14,8 +14,6 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTimeFilter, setSelectedTimeFilter] =
     useState<TimeFilter["value"]>("24h");
-  const [autoRefresh, setAutoRefresh] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   const filteredParticipants = useMemo(() => {
     if (!searchQuery) return mockParticipants;
@@ -33,10 +31,6 @@ export default function Index() {
 
   const handleParticipantClick = (participant: Participant) => {
     navigate(`/participant/${participant.id}`);
-  };
-
-  const handleRefresh = () => {
-    setLastUpdated(new Date());
   };
 
   return (
