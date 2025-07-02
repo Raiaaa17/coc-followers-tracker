@@ -175,33 +175,10 @@ export default function Index() {
         </Card>
 
         {/* Footer */}
-        <footer className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-4">
-            <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
-            <div className="flex items-center gap-2">
-              <span>Auto-refresh:</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                className={`h-6 px-2 text-xs ${
-                  autoRefresh ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                {autoRefresh ? "ON" : "OFF"}
-              </Button>
-            </div>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefresh}
-            className="h-8 gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </Button>
+        <footer className="mt-6 flex justify-end">
+          <span className="text-sm text-muted-foreground">
+            Data are updated every 12 hours
+          </span>
         </footer>
       </main>
     </div>
