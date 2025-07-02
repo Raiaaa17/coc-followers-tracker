@@ -14,20 +14,80 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTimeFilter, setSelectedTimeFilter] =
     useState<TimeFilter["value"]>("24h");
+  const [sortField, setSortField] = useState<keyof Participant | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [lastUpdated] = useState(new Date());
 
-  const filteredParticipants = useMemo(() => {
-    if (!searchQuery) return mockParticipants;
+  const sortedAndFilteredParticipants = useMemo(() => {
+    let filtered = mockParticipants;
 
-    return mockParticipants.filter(
-      (participant) =>
-        participant.username
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        participant.displayName
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()),
-    );
-  }, [searchQuery]);
+    if (searchQuery) {
+      filtered = mockParticipants.filter(
+        (participant) =>
+          participant.username
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          participant.displayName
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()),
+      );
+    }
+
+    if (sortField) {
+      filtered = [...filtered].sort((a, b) => {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+        }
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortDirection === "asc"
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [searchQuery, sortField, sortDirection]);
+
+  const handleSort = (field: keyof Participant) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("desc");
+    }
+  };
+
+  const SortableHeader = ({
+    field,
+    children,
+    className = "",
+  }: {
+    field: keyof Participant;
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <th
+      className={`p-3 text-left text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors ${className}`}
+      onClick={() => handleSort(field)}
+    >
+      <div className="flex items-center gap-1">
+        {children}
+        {sortField === field &&
+          (sortDirection === "asc" ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          ))}
+      </div>
+    </th>
+  );
 
   const handleParticipantClick = (participant: Participant) => {
     navigate(`/participant/${participant.id}`);
