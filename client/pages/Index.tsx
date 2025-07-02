@@ -178,7 +178,7 @@ export default function Index() {
                 </tr>
               </thead>
               <tbody>
-                {filteredParticipants.map((participant) => (
+                {sortedAndFilteredParticipants.map((participant) => (
                   <ParticipantRow
                     key={participant.id}
                     participant={participant}
@@ -191,7 +191,7 @@ export default function Index() {
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-3 p-4">
-            {filteredParticipants.map((participant) => (
+            {sortedAndFilteredParticipants.map((participant) => (
               <Card
                 key={participant.id}
                 className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
