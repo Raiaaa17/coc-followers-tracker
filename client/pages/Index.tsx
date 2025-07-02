@@ -164,24 +164,14 @@ export default function Index() {
             <table className="w-full">
               <thead className="border-b border-border bg-muted/30">
                 <tr>
-                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
-                    #
-                  </th>
-                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
+                  <SortableHeader field="rank">#</SortableHeader>
+                  <SortableHeader field="displayName">
                     Participant
-                  </th>
-                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
-                    Followers
-                  </th>
-                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
-                    24h ∆
-                  </th>
-                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
-                    7d ∆
-                  </th>
-                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
-                    Posts
-                  </th>
+                  </SortableHeader>
+                  <SortableHeader field="followers">Followers</SortableHeader>
+                  <SortableHeader field="change24h">24h ∆</SortableHeader>
+                  <SortableHeader field="change7d">7d ∆</SortableHeader>
+                  <SortableHeader field="posts">Posts</SortableHeader>
                   <th className="p-3 text-center text-sm font-medium text-muted-foreground">
                     Chart
                   </th>
