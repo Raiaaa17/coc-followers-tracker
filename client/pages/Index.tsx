@@ -1,62 +1,215 @@
-import { DemoResponse } from "@shared/api";
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Search, RefreshCw, Activity } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { TimeFilterSelector } from "@/components/tracker/time-filter";
+import { ParticipantRow } from "@/components/tracker/participant-row";
+import { mockParticipants, Participant, TimeFilter } from "@/lib/tracker-data";
 
 export default function Index() {
-  const [exampleFromServer, setExampleFromServer] = useState("");
-  // Fetch users on component mount
-  useEffect(() => {
-    fetchDemo();
-  }, []);
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTimeFilter, setSelectedTimeFilter] =
+    useState<TimeFilter["value"]>("24h");
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
 
-  // Example of how to fetch data from the server (if needed)
-  const fetchDemo = async () => {
-    try {
-      const response = await fetch("/api/demo");
-      const data = (await response.json()) as DemoResponse;
-      setExampleFromServer(data.message);
-    } catch (error) {
-      console.error("Error fetching hello:", error);
-    }
+  const filteredParticipants = useMemo(() => {
+    if (!searchQuery) return mockParticipants;
+
+    return mockParticipants.filter(
+      (participant) =>
+        participant.username
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        participant.displayName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()),
+    );
+  }, [searchQuery]);
+
+  const handleParticipantClick = (participant: Participant) => {
+    navigate(`/participant/${participant.id}`);
+  };
+
+  const handleRefresh = () => {
+    setLastUpdated(new Date());
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="text-center">
-        {/* TODO: FUSION_GENERATION_APP_PLACEHOLDER replace everything here with the actual app! */}
-        <h1 className="text-2xl font-semibold text-slate-800 flex items-center justify-center gap-3">
-          <svg
-            className="animate-spin h-8 w-8 text-slate-400"
-            viewBox="0 0 50 50"
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Activity className="w-8 h-8 text-primary" />
+              <h1 className="text-2xl font-bold text-foreground">
+                InstaTracker
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-4 w-full lg:w-auto">
+              <TimeFilterSelector
+                selected={selectedTimeFilter}
+                onChange={setSelectedTimeFilter}
+              />
+            </div>
+
+            <div className="relative w-full lg:w-80">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder="Search participants..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-6">
+        <Card className="overflow-hidden">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full">
+              <thead className="border-b border-border bg-muted/30">
+                <tr>
+                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
+                    #
+                  </th>
+                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
+                    Participant
+                  </th>
+                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
+                    Followers
+                  </th>
+                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
+                    24h ∆
+                  </th>
+                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
+                    7d ∆
+                  </th>
+                  <th className="p-3 text-left text-sm font-medium text-muted-foreground">
+                    Posts
+                  </th>
+                  <th className="p-3 text-center text-sm font-medium text-muted-foreground">
+                    Chart
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredParticipants.map((participant) => (
+                  <ParticipantRow
+                    key={participant.id}
+                    participant={participant}
+                    onClick={handleParticipantClick}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3 p-4">
+            {filteredParticipants.map((participant) => (
+              <Card
+                key={participant.id}
+                className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => handleParticipantClick(participant)}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-muted-foreground w-6">
+                      #{participant.rank}
+                    </span>
+                    <img
+                      src={participant.profilePicture}
+                      alt={participant.displayName}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">
+                          {participant.displayName}
+                        </span>
+                        {participant.verified && (
+                          <Activity className="w-3 h-3 text-primary" />
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        @{participant.username}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Followers</span>
+                    <div className="font-medium">
+                      {(participant.followers / 1000000).toFixed(1)}M
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">24h Change</span>
+                    <div
+                      className={`font-medium ${
+                        participant.change24h >= 0
+                          ? "text-success"
+                          : "text-destructive"
+                      }`}
+                    >
+                      {participant.change24h >= 0 ? "+" : ""}
+                      {participant.change24h.toFixed(1)}%
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Card>
+
+        {/* Footer */}
+        <footer className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+            <div className="flex items-center gap-2">
+              <span>Auto-refresh:</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setAutoRefresh(!autoRefresh)}
+                className={`h-6 px-2 text-xs ${
+                  autoRefresh ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                {autoRefresh ? "ON" : "OFF"}
+              </Button>
+            </div>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            className="h-8 gap-2"
           >
-            <circle
-              className="opacity-30"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-            />
-            <circle
-              className="text-slate-600"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-              strokeDasharray="100"
-              strokeDashoffset="75"
-            />
-          </svg>
-          Generating your app...
-        </h1>
-        <p className="mt-4 text-slate-600 max-w-md">
-          Watch the chat on the left for updates that might need your attention
-          to finish generating
-        </p>
-        <p className="mt-4 hidden max-w-md">{exampleFromServer}</p>
-      </div>
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </footer>
+      </main>
     </div>
   );
 }
